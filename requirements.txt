@@ -1,0 +1,4 @@
+slack-sdk
+redis
+APScheduler
+websocket-client
