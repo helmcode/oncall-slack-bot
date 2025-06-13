@@ -5,31 +5,18 @@ A Slack bot that manages on-call rotations for the SRE team.
 ## Quick start
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt  # asegúrate de que existen las deps
+uv venv .venv && source .venv/bin/activate
+uv pip install -r requirements.txt  # asegúrate de que existen las deps
 
 # Export env vars (adapt .env or your own secrets manager)
 export SLACK_APP_TOKEN="xapp-..."
 export SLACK_BOT_TOKEN="xoxb-..."
-export REDIS_URL="redis://localhost:6379/0"
+export SUPPORT_CHANNEL="#oncall"
+export LOG_LEVEL="DEBUG" # DEBUG, INFO, WARNING, ERROR
+export DATABASE_URL="postgresql://user:password@localhost:5432/postgres"
 
-python main.py
+uv run main.py
 ```
-
-## Architecture
-
-```
-services/
-  storage.py     # RedisStorage – high-level API for Redis
-  slack_api.py   # SlackAPI – wraps Web & Socket clients
-handlers/
-  commands.py    # Business logic for Slack commands
-utils/
-  helpers.py     # Small pure-logic helpers
-main.py          # Application wiring & entry point
-```
-
-Legacy `bot.py` remains for reference and now exits with a deprecation message.
 
 ## Available commands
 

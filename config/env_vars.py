@@ -7,11 +7,11 @@ class AppConfig:
     """Loads and stores environment variables for the application."""
     SLACK_BOT_TOKEN = os.environ.get("SLACK_BOT_TOKEN")
     SLACK_APP_TOKEN = os.environ.get("SLACK_APP_TOKEN")
-    REDIS_URL = os.environ.get("REDIS_URL", "redis://localhost:6379")
+    DATABASE_URL = os.environ.get("DATABASE_URL")
     SUPPORT_CHANNEL = os.environ.get("SUPPORT_CHANNEL", "#tests")
     LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 
-    required_vars = ["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN"]
+    required_vars = ["SLACK_BOT_TOKEN", "SLACK_APP_TOKEN", "DATABASE_URL"]
     missing_vars = [var for var in required_vars if not os.environ.get(var)]
 
     if missing_vars:

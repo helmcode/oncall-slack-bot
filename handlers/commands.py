@@ -3,14 +3,14 @@ from datetime import datetime
 from utils.logger import get_logger
 from utils.helpers import get_current_oncall_text
 from config.team import SRE_MEMBERS, REGIONS
-from services.storage import RedisStorage
+from services.postgres_storage import PostgresStorage as Storage
 from services.slack_api import SlackAPI
 
 logger = get_logger(__name__)
 
 # ========================= COMMANDS ===========================
 
-def show_current_oncall(slack: SlackAPI, storage: RedisStorage, channel: str):
+def show_current_oncall(slack: SlackAPI, storage: Storage, channel: str):
     """Shows who is currently on call"""
     try:
         logger.info("Showing current oncall")
@@ -20,7 +20,7 @@ def show_current_oncall(slack: SlackAPI, storage: RedisStorage, channel: str):
         logger.error(f"Error showing oncall: {e}")
         slack.send(channel, f"❌ Error showing oncall: {str(e)}")
 
-def show_rotation_status(slack: SlackAPI, storage: RedisStorage, channel: str):
+def show_rotation_status(slack: SlackAPI, storage: Storage, channel: str):
     """Shows the rotation status and history"""
     try:
         logger.info("Showing rotation status")
@@ -53,7 +53,7 @@ def show_rotation_status(slack: SlackAPI, storage: RedisStorage, channel: str):
         logger.error(f"Error showing rotation status: {e}")
         slack.send(channel, f"❌ Error showing rotation status: {str(e)}")
 
-def rotate_oncall(storage: RedisStorage):
+def rotate_oncall(storage: Storage):
     """Executes the automatic rotation"""
     logger.info("🔄 Executing rotation")
     for region, members in REGIONS.items():
@@ -76,7 +76,7 @@ def rotate_oncall(storage: RedisStorage):
         except Exception as e:
             logger.error(f"Error rotating for {region}: {e}")
 
-def test_rotation(slack: SlackAPI, storage: RedisStorage, channel: str):
+def test_rotation(slack: SlackAPI, storage: Storage, channel: str):
     """Executes a test rotation"""
     logger.info("🧪 Executing test rotation")
     rotate_oncall(storage)
@@ -95,7 +95,7 @@ def show_help(slack: SlackAPI, channel: str):
 • `@Bender help`: Shows this help message."""
     slack.send(channel, help_text)
 
-def send_handoff_reminder(slack: SlackAPI, storage: RedisStorage):
+def send_handoff_reminder(slack: SlackAPI, storage: Storage):
     """Sends handoff reminder on Sunday"""
     try:
         current_latam = storage.get_oncall("LATAM")

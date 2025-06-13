@@ -1,4 +1,5 @@
 slack-sdk
-redis
 APScheduler
 websocket-client
+sqlalchemy
+psycopg2-binary

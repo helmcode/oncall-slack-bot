@@ -4,7 +4,7 @@ from apscheduler.triggers.cron import CronTrigger
 from utils.logger import get_logger
 from config.env_vars import config
 from handlers import commands as cmd
-from services.storage import RedisStorage
+from services.postgres_storage import PostgresStorage
 from services.slack_api import SlackAPI
 
 logger = get_logger("main", level=config.LOG_LEVEL)
@@ -12,7 +12,7 @@ logger = get_logger("main", level=config.LOG_LEVEL)
 
 def main():
     # Instantiate services
-    storage = RedisStorage()
+    storage = PostgresStorage()
     slack = SlackAPI()
 
     # ---------------- Scheduler -----------------
