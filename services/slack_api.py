@@ -1,6 +1,9 @@
 from slack_sdk.web import WebClient
 from slack_sdk.socket_mode import SocketModeClient
 from config.env_vars import config
+from utils.logger import get_logger
+
+logger = get_logger(__name__, level=config.LOG_LEVEL)
 
 class SlackAPI:
     """Wrapper around Slack Web & Socket clients"""

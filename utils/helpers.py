@@ -1,10 +1,10 @@
 from utils.logger import get_logger
 from config.env_vars import config
-from services.storage import RedisStorage
+from services.postgres_storage import PostgresStorage as Storage
 
-logger = get_logger("utils_helpers", level=config.LOG_LEVEL)
+logger = get_logger(__name__, level=config.LOG_LEVEL)
 
-def get_current_oncall_text(storage: RedisStorage, intro: str) -> str:
+def get_current_oncall_text(storage: Storage, intro: str) -> str:
     """Generates the text to show who is on call."""
     try:
         logger.info("Generating oncall text")

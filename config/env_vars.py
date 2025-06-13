@@ -1,7 +1,7 @@
 import os
 from utils.logger import get_logger
 
-logger = get_logger("env_vars", level=os.environ.get("LOG_LEVEL", "INFO"))
+logger = get_logger(__name__, level=os.environ.get("LOG_LEVEL", "INFO"))
 
 class AppConfig:
     """Loads and stores environment variables for the application."""

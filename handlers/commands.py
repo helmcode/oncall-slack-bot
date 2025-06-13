@@ -2,11 +2,12 @@ import json
 from datetime import datetime
 from utils.logger import get_logger
 from utils.helpers import get_current_oncall_text
+from config.env_vars import config
 from config.team import SRE_MEMBERS, REGIONS
 from services.postgres_storage import PostgresStorage as Storage
 from services.slack_api import SlackAPI
 
-logger = get_logger(__name__)
+logger = get_logger(__name__, level=config.LOG_LEVEL)
 
 # ========================= COMMANDS ===========================
 
@@ -34,7 +35,7 @@ def show_rotation_status(slack: SlackAPI, storage: Storage, channel: str):
                 member = next(m for m in SRE_MEMBERS if m.slack_id == current_member_id)
                 status_text += f"🔄 *{region}*: {member.name} (position {current_idx})\n"
 
-            history = storage.lrange(f"rotation_history:{region}", 0, 0)
+            history = storage.lrange(region, limit=1)
             if history:
                 last_change = json.loads(history[0])
                 last_date = datetime.fromisoformat(last_change["timestamp"]).strftime("%d/%m %H:%M")
@@ -86,13 +87,7 @@ def test_rotation(slack: SlackAPI, storage: Storage, channel: str):
 
 def show_help(slack: SlackAPI, channel: str):
     """Shows available commands"""
-    help_text = """*Available commands:*
-
-• `@Bender who`: Shows who is on call.
-• `@Bender status`: Shows the rotation status.
-• `@Bender rotate`: [Admin] Forces a rotation in both regions.
-• `@Bender test`: [Admin] Executes a test rotation.
-• `@Bender help`: Shows this help message."""
+    help_text = """* 🤖Available commands:*\n\n\n• *@Bender who*: Shows who is on call.\n• *@Bender status*: Shows the rotation status.\n• *@Bender rotate*: Forces a rotation in both regions.\n• *@Bender swap @user*: Lets the current on-call pass the shift to @user.\n• *@Bender test*: Executes a test rotation.\n• *@Bender help*: Shows this help message."""
     slack.send(channel, help_text)
 
 def send_handoff_reminder(slack: SlackAPI, storage: Storage):
@@ -122,3 +117,36 @@ def send_handoff_reminder(slack: SlackAPI, storage: Storage):
     except Exception as e:
         logger.error(f"❌ Error sending handoff reminder: {e}")
         slack.send(config.SUPPORT_CHANNEL, f"❌ Error sending handoff reminder: {e}")
+
+# ---------------- Swap on-call -----------------
+
+def swap_oncall(slack: SlackAPI, storage: Storage, channel: str, requester_id: str, dest_id: str):
+    """Allows current on-call to hand over the shift to another member in same region."""
+    try:
+        # Find region where requester is on-call
+        region = None
+        for reg in REGIONS.keys():
+            if storage.get_oncall(reg) == requester_id:
+                region = reg
+                break
+
+        if not region:
+            slack.send(channel, "❌ Only the current on-call can initiate a swap.")
+            return
+
+        # Validate dest is in rotation list for that region
+        dest_id = dest_id.upper()
+        members = REGIONS[region]
+        if not any(m.slack_id.upper() == dest_id for m in members):
+            slack.send(channel, f"❌ <@{dest_id}> is not part of {region} rotation.")
+            return
+
+        # Execute swap
+        storage.set_oncall(region, dest_id)
+        storage.push_history(region, dest_id)
+
+        slack.send(channel, f"✅ Shift for *{region}* transferred to <@{dest_id}>.")
+
+    except Exception as e:
+        logger.error(f"Error swapping oncall: {e}")
+        slack.send(channel, f"❌ Error swapping oncall: {e}")

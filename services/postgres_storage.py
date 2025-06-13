@@ -1,59 +1,25 @@
 from __future__ import annotations
+import json
 from datetime import datetime
 from typing import List, Optional
-from sqlalchemy import create_engine, Column, Integer, String, DateTime, Boolean, ForeignKey, text
-from sqlalchemy.orm import declarative_base, sessionmaker, relationship, Session
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import sessionmaker, Session
 from config.env_vars import config
 from utils.logger import get_logger
+from models.oncall_models import (
+    Base,
+    SREMemberORM,
+    OnCallORM,
+    RotationHistoryORM,
+    ShiftSwapORM,
+)
 
 
-logger = get_logger("postgres_storage", level=config.LOG_LEVEL)
+logger = get_logger(__name__, level=config.LOG_LEVEL)
 
 
 engine = create_engine(config.DATABASE_URL, echo=False, future=True)
 SessionLocal = sessionmaker(bind=engine, autoflush=False, expire_on_commit=False, future=True)
-Base = declarative_base()
-
-
-class SREMemberORM(Base):
-    __tablename__ = "sre_member"
-    id = Column(Integer, primary_key=True)
-    slack_id = Column(String, unique=True, nullable=False)
-    name = Column(String, nullable=False)
-    region = Column(String, nullable=False)
-
-    rotations = relationship("RotationHistoryORM", back_populates="member")
-
-
-class OnCallORM(Base):
-    __tablename__ = "oncall"
-    region = Column(String, primary_key=True)
-    member_id = Column(Integer, ForeignKey("sre_member.id"))
-    since = Column(DateTime, nullable=False, server_default=text("now()"))
-    rotation_idx = Column(Integer, nullable=False, server_default=text("0"))
-
-    member = relationship("SREMemberORM")
-
-
-class RotationHistoryORM(Base):
-    __tablename__ = "rotation_history"
-    id = Column(Integer, primary_key=True)
-    region = Column(String, nullable=False)
-    member_id = Column(Integer, ForeignKey("sre_member.id"))
-    rotated_at = Column(DateTime, nullable=False, server_default=text("now()"))
-
-    member = relationship("SREMemberORM", back_populates="rotations")
-
-
-# Optional table for future swap requests
-class ShiftSwapORM(Base):
-    __tablename__ = "shift_swap"
-    id = Column(Integer, primary_key=True)
-    region = Column(String, nullable=False)
-    from_member = Column(Integer, ForeignKey("sre_member.id"))
-    to_member = Column(Integer, ForeignKey("sre_member.id"))
-    requested_at = Column(DateTime, server_default=text("now()"))
-    approved = Column(Boolean, default=False)
 
 
 # Create tables if they don't exist

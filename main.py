@@ -7,7 +7,8 @@ from handlers import commands as cmd
 from services.postgres_storage import PostgresStorage
 from services.slack_api import SlackAPI
 
-logger = get_logger("main", level=config.LOG_LEVEL)
+
+logger = get_logger(__name__, level=config.LOG_LEVEL)
 
 
 def main():
@@ -57,6 +58,18 @@ def main():
                 cmd.show_current_oncall(slack, storage, channel)
             elif "status" in text:
                 cmd.show_rotation_status(slack, storage, channel)
+            elif "swap" in text:
+                import re
+                # extract all user mentions
+                user_ids = [m.upper() for m in re.findall(r"<@([A-Za-z0-9]+)(?:\|[^>]+)?>", text)]
+                # first mention is bot itself => remove
+                if user_ids and user_ids[0] == slack.web_client.auth_test()["user_id"]:
+                    user_ids = user_ids[1:]
+                if user_ids:
+                    dest_id = user_ids[0]
+                    cmd.swap_oncall(slack, storage, channel, user, dest_id)
+                else:
+                    slack.send(channel, "❌ Usage: swap @user")
             elif "test" in text:
                 cmd.test_rotation(slack, storage, channel)
             else:
