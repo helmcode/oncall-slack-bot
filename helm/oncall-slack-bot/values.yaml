@@ -9,6 +9,9 @@ postgres:
   dbName: oncall
   user: oncalluser
   password: oncallpass
+  version: "15.12"
+  storageClassName: do-block-storage
+
   storage: 1Gi
 
 app:
