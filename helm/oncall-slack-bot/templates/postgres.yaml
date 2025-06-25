@@ -7,7 +7,7 @@ spec:
   version: "15.12"
   storageType: Durable
   storage:
-    storageClassName: standard
+    storageClassName: {{ .Values.postgres.storageClassName | default "standard" }}
     accessModes:
       - ReadWriteOnce
     resources:
