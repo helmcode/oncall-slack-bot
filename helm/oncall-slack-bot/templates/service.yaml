@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "oncall-slack-bot.fullname" . }}
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
+  ports:
+    - port: 80
+      targetPort: 8080

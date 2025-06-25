@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "oncall-slack-bot.fullname" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
+    spec:
+      containers:
+        - name: bot
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- if and .Values.postgres.enabled (not .Values.app.envFromAppBinding) }}
+            - name: DB_HOST
+              value: "{{ include "oncall-slack-bot.fullname" . }}-pg"
+            - name: DB_PORT
+              value: "5432"
+            - name: DB_NAME
+              value: "{{ .Values.postgres.dbName }}"
+            - name: DB_USER
+              value: "{{ .Values.postgres.user }}"
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
+                  key: password
+            {{- else if .Values.app.envFromAppBinding }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oncall-slack-bot.fullname" . }}-appbinding
+                  key: uri
+            {{- end }}
+          ports:
+            - containerPort: 8080

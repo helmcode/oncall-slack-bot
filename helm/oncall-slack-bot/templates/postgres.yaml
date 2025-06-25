@@ -1,0 +1,18 @@
+{{- if .Values.postgres.enabled }}
+apiVersion: kubedb.com/v1alpha2
+kind: Postgres
+metadata:
+  name: {{ include "oncall-slack-bot.fullname" . }}-pg
+spec:
+  version: "15.2"
+  storageType: Durable
+  storage:
+    storageClassName: standard
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ .Values.postgres.storage }}
+  authSecret:
+    name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
+{{- end }}

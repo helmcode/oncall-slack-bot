@@ -1,0 +1,5 @@
+*.tgz
+*.md
+*.bak
+*.swp
+.DS_Store
