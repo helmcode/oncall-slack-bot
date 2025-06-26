@@ -2,6 +2,7 @@ image:
   repository: ghcr.io/sre-helmcode/oncall-slack-bot
   tag: "1.0.3"
   pullPolicy: IfNotPresent
+  imagePullSecrets: ghcr-creds
 
 postgres:
   enabled: true
@@ -34,5 +35,3 @@ ingress:
       hosts:
         - oncall.helmcode.com
 
-imagePullSecrets:
-  - name: ghcr-creds

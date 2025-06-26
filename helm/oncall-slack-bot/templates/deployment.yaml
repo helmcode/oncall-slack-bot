@@ -13,6 +13,8 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
     spec:
+      imagePullSecrets:
+        - name: {{ .Values.image.imagePullSecrets }}
       containers:
         - name: bot
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
