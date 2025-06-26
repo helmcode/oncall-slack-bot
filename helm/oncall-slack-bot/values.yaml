@@ -9,10 +9,9 @@ postgres:
   dbName: oncall
   user: oncalluser
   password: oncallpass
+  storage: 1Gi
   version: "15.12"
   storageClassName: do-block-storage
-
-  storage: 1Gi
 
 app:
   envFromAppBinding: true
@@ -33,3 +32,6 @@ ingress:
     - secretName: oncall-helmcode-tls
       hosts:
         - oncall.helmcode.com
+
+imagePullSecrets:
+  - name: ghcr-creds

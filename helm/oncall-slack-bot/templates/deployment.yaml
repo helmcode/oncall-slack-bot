@@ -40,3 +40,5 @@ spec:
             {{- end }}
           ports:
             - containerPort: 8080
+      imagePullSecrets:
+        {{- toYaml .Values.imagePullSecrets | nindent 8 }}
