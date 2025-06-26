@@ -2,6 +2,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "oncall-slack-bot.fullname" . }}
+  namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
@@ -16,8 +17,16 @@ spec:
         - name: bot
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
           env:
-            {{- if and .Values.postgres.enabled (not .Values.app.envFromAppBinding) }}
+            {{- if .Values.postgres.useAppBinding }}
+            - name: DATABASE_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oncall-slack-bot.fullname" . }}-appbinding
+                  key: uri
+            {{- else }}
             - name: DB_HOST
               value: "{{ include "oncall-slack-bot.fullname" . }}-pg"
             - name: DB_PORT
@@ -31,14 +40,4 @@ spec:
                 secretKeyRef:
                   name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
                   key: password
-            {{- else if .Values.app.envFromAppBinding }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "oncall-slack-bot.fullname" . }}-appbinding
-                  key: uri
             {{- end }}
-          ports:
-            - containerPort: 8080
-      imagePullSecrets:
-        {{- toYaml .Values.imagePullSecrets | nindent 8 }}

@@ -5,7 +5,7 @@ image:
 
 postgres:
   enabled: true
-  useAppBinding: true  # Si lo pones en false usará variables de entorno manuales
+  useAppBinding: false
   dbName: oncall
   user: oncalluser
   password: oncallpass
@@ -15,6 +15,7 @@ postgres:
 
 app:
   envFromAppBinding: true
+  appBindingSecret: "oncall-postgres-appbinding"
 
 ingress:
   enabled: true
