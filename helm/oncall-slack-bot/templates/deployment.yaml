@@ -43,3 +43,13 @@ spec:
                   name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
                   key: password
             {{- end }}
+            - name: SLACK_BOT_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oncall-slack-bot.fullname" . }}-slack-secret
+                  key: SLACK_BOT_TOKEN
+            - name: SLACK_APP_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "oncall-slack-bot.fullname" . }}-slack-secret
+                  key: SLACK_APP_TOKEN
