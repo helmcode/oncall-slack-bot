@@ -3,7 +3,7 @@ Devuelve el nombre completo del recurso: simplemente el nombre del release
 Ej: "oncall-slack-bot"
 */}}
 {{- define "oncall-slack-bot.fullname" -}}
-{{- .Release.Name -}}
+{{ .Release.Name }}-slack-bot
 {{- end -}}
 
 {{/*
