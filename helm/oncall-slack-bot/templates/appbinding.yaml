@@ -5,8 +5,8 @@ metadata:
   name: {{ include "oncall-slack-bot.fullname" . }}-appbinding
 spec:
   type: postgres
-  #secret:
-  #  name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
+  secret:
+    name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
   clientConfig:
     url: "postgres://{{ .Values.postgres.user }}:{{ .Values.postgres.password }}@{{ include "oncall-slack-bot.fullname" . }}-pg:5432/{{ .Values.postgres.dbName }}"
 {{- end }}
