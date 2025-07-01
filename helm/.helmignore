@@ -3,4 +3,3 @@
 *.bak
 *.swp
 .DS_Store
-values.production.yaml
