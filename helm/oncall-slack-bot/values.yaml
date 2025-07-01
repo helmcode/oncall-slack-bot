@@ -6,7 +6,7 @@ image:
 
 postgres:
   enabled: true
-  useAppBinding: true
+  useAppBinding: false
   dbName: oncall
   user: oncalluser
   password: oncallpass
