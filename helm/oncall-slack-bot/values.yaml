@@ -1,37 +1,36 @@
+# Imagen del bot
 image:
   repository: ghcr.io/sre-helmcode/oncall-slack-bot
   tag: "1.0.3"
   pullPolicy: IfNotPresent
   imagePullSecrets: ghcr-creds
 
-postgres:
-  enabled: true
-  useAppBinding: false
-  dbName: oncall
-  user: oncalluser
-  password: oncallpass
-  storage: 1Gi
-  version: "15.12"
-  storageClassName: do-block-storage
+# Vault configuration
+vault:
+  connectionRef: vault-connection
+  address: https://vault.helmcode.com
+  skipTLSVerify: false
 
-app:
-  envFromAppBinding: true
-  appBindingSecret: "oncall-postgres-appbinding"
+  authRef: vault-auth
+  kubernetesAuthMount: kubernetes
+  kubernetesRole: vault-auth
+  serviceAccountName: oncall-bot-sa
+  audiences:
+    - vault
 
-ingress:
-  enabled: true
-  className: "traefik"
-  annotations:
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-    traefik.ingress.kubernetes.io/router.tls: "true"
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-  hosts:
-    - host: oncall.helmcode.com
-      paths:
-        - path: /
-          pathType: Prefix
-  tls:
-    - secretName: oncall-helmcode-tls
-      hosts:
-        - oncall.helmcode.com
+  staticSecretRef: oncall-slack-bot-vault-secret
+  mount: oncall
+  destinationSecretName: oncall-slack-bot-env-secret
+  refreshAfter: 1m
 
+# Recursos opcionales
+resources:
+  requests:
+    cpu: 100m
+    memory: 128Mi
+  limits:
+    cpu: 500m
+    memory: 512Mi
+
+# Replicas del bot
+replicaCount: 1

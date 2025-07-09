@@ -13,13 +13,13 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
     spec:
-  serviceAccountName: oncall-bot-sa
-  containers:
-    - name: bot
-      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-      imagePullPolicy: {{ .Values.image.pullPolicy }}
-      ports:
-        - containerPort: 8080
-      envFrom:
-        - secretRef:
-            name: oncall-slack-bot-secret
+      serviceAccountName: {{ .Values.vault.serviceAccountName | default "oncall-bot-sa" }}
+      containers:
+        - name: bot
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: {{ .Values.vault.destinationSecretName | default "oncall-slack-bot-env-secret" }}
