@@ -1,0 +1,17 @@
+apiVersion: kubedb.com/v1alpha2
+kind: Postgres
+metadata:
+  name: {{ .Release.Name }}-pg
+  namespace: {{ .Release.Namespace }}
+spec:
+  version: "15.12"
+  storageType: Durable
+  storage:
+    storageClassName: {{ .Values.postgres.storageClass | default "standard" }}
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: {{ .Values.postgres.storageSize | default "1Gi" }}
+  authSecret:
+    name: {{ .Release.Name }}-pg-auth

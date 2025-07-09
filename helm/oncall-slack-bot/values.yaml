@@ -47,3 +47,9 @@ ingress:
         - path: /
           pathType: Prefix
   tls: []
+
+  # Postgres
+  postgres:
+    storageClass: standard
+    storageSize: 
+    
