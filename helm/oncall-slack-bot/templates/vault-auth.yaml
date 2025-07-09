@@ -1,0 +1,15 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultAuth
+metadata:
+  name: {{ .Values.vault.authRef | default "vault-auth" }}
+  labels:
+    {{- include "anyformat.labels" . | nindent 4 }}
+spec:
+  method: kubernetes
+  mount: {{ .Values.vault.kubernetesAuthMount | default "kubernetes" }}
+  kubernetes:
+    role: {{ .Values.vault.kubernetesRole | default "vault-auth" }}
+    serviceAccount: {{ include "anyformat.serviceAccountName" . }}
+    audiences:
+      - vault
+  vaultConnectionRef: {{ .Values.vault.connectionRef | default "vault-connection" }} 

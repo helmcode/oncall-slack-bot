@@ -13,33 +13,13 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
     spec:
-      imagePullSecrets:
-        - name: {{ .Values.image.imagePullSecrets }}
-      containers:
-        - name: bot
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
-          ports:
-            - containerPort: 8080
-          env:
-            {{- if .Values.postgres.useAppBinding }}
-            - name: DATABASE_URL
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "oncall-slack-bot.fullname" . }}-appbinding
-                  key: uri
-            {{- else }}
-            - name: DB_HOST
-              value: "{{ include "oncall-slack-bot.fullname" . }}-pg"
-            - name: DB_PORT
-              value: "5432"
-            - name: DB_NAME
-              value: "{{ .Values.postgres.dbName }}"
-            - name: DB_USER
-              value: "{{ .Values.postgres.user }}"
-            - name: DB_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: {{ include "oncall-slack-bot.fullname" . }}-pg-secret
-                  key: password
-            {{- end }}
+  serviceAccountName: oncall-bot-sa
+  containers:
+    - name: bot
+      image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+      imagePullPolicy: {{ .Values.image.pullPolicy }}
+      ports:
+        - containerPort: 8080
+      envFrom:
+        - secretRef:
+            name: oncall-slack-bot-secret

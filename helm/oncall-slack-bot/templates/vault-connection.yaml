@@ -1,0 +1,12 @@
+apiVersion: secrets.hashicorp.com/v1beta1
+kind: VaultConnection
+metadata:
+  name: {{ .Values.vault.connectionRef | default "vault-connection" }}
+  labels:
+    {{- include "anyformat.labels" . | nindent 4 }}
+spec:
+  address: {{ .Values.vault.address | default "https://vault.anyformat.ai" }}
+  skipTLSVerify: {{ .Values.vault.skipTLSVerify | default false }}
+  {{- if .Values.vault.caCertSecret }}
+  caCertSecretRef: {{ .Values.vault.caCertSecret }}
+  {{- end }} 
