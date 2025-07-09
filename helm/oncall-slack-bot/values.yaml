@@ -50,5 +50,5 @@ ingress:
 
 # Postgres
 postgres:
-  storageClass: standard
+  storageClass: do-block-storage
   storageSize: 1Gi    
