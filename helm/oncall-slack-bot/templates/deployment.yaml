@@ -14,6 +14,8 @@ spec:
         app.kubernetes.io/name: {{ include "oncall-slack-bot.name" . }}
     spec:
       serviceAccountName: {{ .Values.vault.serviceAccountName | default "oncall-bot-sa" }}
+      imagePullSecrets:
+        - name: {{ .Values.image.imagePullSecrets | default "ghcr-creds" }}
       containers:
         - name: bot
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
