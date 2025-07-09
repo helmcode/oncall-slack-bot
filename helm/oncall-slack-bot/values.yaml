@@ -19,7 +19,9 @@ vault:
     - vault
 
   staticSecretRef: oncall-slack-bot-vault-secret
-  mount: oncall
+  mount: helmcode_platform
+path: bot-on-call
+
   destinationSecretName: oncall-slack-bot-env-secret
   refreshAfter: 1m
 
