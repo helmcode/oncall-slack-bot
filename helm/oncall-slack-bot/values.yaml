@@ -34,3 +34,15 @@ resources:
 
 # Replicas del bot
 replicaCount: 1
+
+# Ingress (con Traefik y helmcode.com)
+ingress:
+  enabled: true
+  className: traefik
+  annotations: {}
+  hosts:
+    - host: oncall-slack-bot.helmcode.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
